@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainer Studio Pro - Capacity Connect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 500: '#0284c7', 600: '#0369a1', 700: '#075985' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .nav-item.active { background-color: #0284c7; color: #ffffff; border-radius: 0.75rem; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(2, 132, 199, 0.2); }
+        .chart-container { position: relative; height: 300px; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- TOP BAR -->
+    <header class="bg-slate-950/90 backdrop-blur-xl text-white h-16 flex items-center justify-between px-4 md:px-6 sticky top-0 z-50 border-b border-slate-800/60 shadow-lg">
+        <div class="flex items-center space-x-3">
+            <button onclick="toggleSidebar()" class="md:hidden text-slate-300 hover:text-white p-1 transition">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-cyan-600 flex items-center justify-center">
+                    <i class="fa-solid fa-chalkboard-user text-white text-sm"></i>
+                </div>
+                <span class="font-black text-lg md:text-xl tracking-wider">TRAINER <span class="text-sky-400">STUDIO</span></span>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 md:space-x-4">
+            <!-- Live Class Indicator -->
+            <div class="hidden sm:flex items-center space-x-2 bg-red-600/20 border border-red-500/40 px-3 py-1.5 rounded-full animate-pulse">
+                <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                <span class="text-xs font-bold text-red-300">No Live Class</span>
+            </div>
+
+            <!-- Notifications -->
+            <button class="relative p-2 text-slate-400 hover:text-sky-400 transition" onclick="alert('📢 4 new student doubts in forum')">
+                <i class="fa-solid fa-bell text-lg"></i>
+                <span class="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+            </button>
+
+            <!-- Theme Toggle -->
+            <button onclick="toggleTheme()" class="p-2 text-slate-400 hover:text-white transition rounded-lg hover:bg-slate-800">
+                <i id="theme-icon" class="fa-solid fa-sun text-amber-400"></i>
+            </button>
+            
+            <!-- Profile -->
+            <div class="flex items-center space-x-2 md:space-x-3 border-l border-slate-700 pl-3 md:pl-4">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Dr. Sharma" class="w-8 h-8 rounded-full border-2 border-sky-400 object-cover">
+                <div class="hidden sm:block text-left">
+                    <p class="text-xs font-bold leading-tight">Dr. Sharma</p>
+                    <p class="text-[10px] text-sky-400">Senior Instructor</p>
+                </div>
+                <button onclick="window.location.href='index.html'" class="text-slate-400 hover:text-red-400 text-sm ml-1 transition">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 flex min-h-[calc(100vh-4rem)] relative">
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-64 bg-slate-950/80 backdrop-blur-sm text-slate-300 flex-shrink-0 flex flex-col justify-between absolute md:relative z-40 h-full transition-all duration-300 -translate-x-full md:translate-x-0 border-r border-slate-800/60">
+            <nav class="p-4 space-y-2 text-sm font-medium">
+                <a href="#" onclick="switchTab('overview', this)" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-chart-line w-5"></i> <span>Overview</span>
+                </a>
+                <a href="#" onclick="switchTab('live-class', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800 text-amber-400">
+                    <i class="fa-solid fa-broadcast-tower w-5"></i> <span>Live Class</span>
+                    <span class="w-2 h-2 rounded-full bg-slate-500 ml-auto"></span>
+                </a>
+                <a href="#" onclick="switchTab('gradebook', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-graduation-cap w-5"></i> <span>Gradebook</span>
+                </a>
+                <a href="#" onclick="switchTab('test-builder', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-list-check w-5"></i> <span>Test Builder</span>
+                </a>
+                <a href="#" onclick="switchTab('content-library', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-book w-5"></i> <span>Content Library</span>
+                </a>
+                <a href="#" onclick="switchTab('student-analytics', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-chart-bar w-5"></i> <span>Analytics</span>
+                </a>
+                <a href="#" onclick="switchTab('student-feedback', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-comments w-5"></i> <span>Feedback</span>
+                </a>
+                <a href="#" onclick="switchTab('attendance', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-clipboard-list w-5"></i> <span>Attendance</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <p class="font-semibold text-slate-400">Session Active</p>
+                <p class="mt-1"><span class="text-emerald-400">●</span> Connected</p>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto w-full bg-slate-900/50">
+
+            <!-- OVERVIEW TAB -->
+            <section id="tab-overview" class="tab-content space-y-6">
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-sky-600/20 via-cyan-600/20 to-blue-600/20 border border-sky-500/30 rounded-2xl p-6 shadow-xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-3xl font-black text-white">Welcome Back, Dr. Sharma! 👋</h2>
+                            <p class="text-slate-300 mt-2">Batch PY-2026 • 42 Active Trainees</p>
+                        </div>
+                        <button onclick="alert('🎬 Starting live class...')" class="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-circle text-xs animate-pulse"></i> Go Live Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Key Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="stat-card bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 hover:border-sky-500/40 transition">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Total Trainees</p>
+                        <p class="text-3xl font-black text-sky-400 mt-2">42</p>
+                        <p class="text-xs text-slate-500 mt-2">↑ 2 new this week</p>
+                    </div>
+
+                    <div class="stat-card bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 hover:border-emerald-500/40 transition">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Avg Batch Score</p>
+                        <p class="text-3xl font-black text-emerald-400 mt-2">87.3%</p>
+                        <p class="text-xs text-slate-500 mt-2">↑ 3.2% from last month</p>
+                    </div>
+
+                    <div class="stat-card bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 hover:border-amber-500/40 transition">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Pending Reviews</p>
+                        <p class="text-3xl font-black text-amber-400 mt-2">12</p>
+                        <p class="text-xs text-slate-500 mt-2">Assignments & tests</p>
+                    </div>
+
+                    <div class="stat-card bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 hover:border-purple-500/40 transition">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Content Created</p>
+                        <p class="text-3xl font-black text-purple-400 mt-2">28</p>
+                        <p class="text-xs text-slate-500 mt-2">Videos, slides, docs</p>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-sky-400"></i> Class Performance Trend
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-users text-cyan-400"></i> Trainee Engagement
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="engagementChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                    <h3 class="font-bold text-white mb-4">Recent Activity</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/30">
+                            <div class="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0"></div>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-white">Module 5 Quiz Completed by All Trainees</p>
+                                <p class="text-xs text-slate-400">30 minutes ago</p>
+                            </div>
+                            <span class="text-xs bg-emerald-600/30 text-emerald-300 px-2 py-1 rounded">Completed</span>
+                        </div>
+
+                        <div class="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/30">
+                            <div class="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0"></div>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-white">3 Assignment Submissions Received</p>
+                                <p class="text-xs text-slate-400">2 hours ago</p>
+                            </div>
+                            <span class="text-xs bg-blue-600/30 text-blue-300 px-2 py-1 rounded">Review</span>
+                        </div>
+
+                        <div class="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700/30">
+                            <div class="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"></div>
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-white">5 Student Doubts Posted in Forum</p>
+                                <p class="text-xs text-slate-400">4 hours ago</p>
+                            </div>
+                            <span class="text-xs bg-amber-600/30 text-amber-300 px-2 py-1 rounded">Pending</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LIVE CLASS TAB -->
+            <section id="tab-live-class" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-black text-white">Live Class Control Center</h2>
+                    <button onclick="toggleBroadcast()" id="btn-broadcast" class="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold text-sm rounded-xl shadow transition">
+                        <i class="fa-solid fa-circle text-xs mr-2 animate-pulse"></i> Start Broadcasting
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 space-y-4">
+                        <div id="broadcast-feed" class="w-full h-96 bg-slate-900 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-700">
+                            <div class="text-center">
+                                <i class="fa-solid fa-video text-4xl text-slate-600 mb-3"></i>
+                                <p id="feed-status" class="text-slate-500 font-mono">Camera Standby • Ready to Stream</p>
+                            </div>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-2">
+                                <button class="p-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition" title="Microphone">
+                                    <i class="fa-solid fa-microphone"></i>
+                                </button>
+                                <button class="p-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition" title="Camera">
+                                    <i class="fa-solid fa-video"></i>
+                                </button>
+                                <button class="p-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition" title="Screen Share">
+                                    <i class="fa-solid fa-desktop"></i>
+                                </button>
+                                <button class="p-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition" title="Record">
+                                    <i class="fa-solid fa-circle-dot"></i>
+                                </button>
+                            </div>
+                            <button onclick="launchPoll()" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm rounded-lg transition">
+                                <i class="fa-solid fa-square-poll-vertical mr-2"></i> Launch Poll
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Chat -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4 flex flex-col h-[24.5rem]">
+                        <h3 class="font-bold text-white mb-3">Live Chat</h3>
+                        <div class="flex-1 overflow-y-auto space-y-3 mb-3 text-xs">
+                            <div class="bg-slate-900/50 p-2.5 rounded-lg">
+                                <p class="font-bold text-sky-300">Priya Sharma:</p>
+                                <p class="text-slate-300 mt-0.5">Sir, can you explain the decorator pattern more?</p>
+                            </div>
+                            <div class="bg-slate-900/50 p-2.5 rounded-lg">
+                                <p class="font-bold text-emerald-300">Rahul Verma:</p>
+                                <p class="text-slate-300 mt-0.5">Great explanation on lambda functions!</p>
+                            </div>
+                        </div>
+                        <input type="text" placeholder="Send message..." class="w-full bg-slate-900 border border-slate-700 text-xs rounded-lg p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- GRADEBOOK TAB -->
+            <section id="tab-gradebook" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">Trainee Competency Gradebook</h2>
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-900 border-b border-slate-700">
+                            <tr>
+                                <th class="p-4 text-left text-slate-400">Trainee Name</th>
+                                <th class="p-4 text-center text-slate-400">MCQ %</th>
+                                <th class="p-4 text-center text-slate-400">Projects %</th>
+                                <th class="p-4 text-center text-slate-400">Assignment %</th>
+                                <th class="p-4 text-center text-slate-400">Overall</th>
+                                <th class="p-4 text-center text-slate-400">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700">
+                            <tr class="hover:bg-slate-900/30">
+                                <td class="p-4 font-bold text-white">Priya Sharma</td>
+                                <td class="p-4 text-center text-emerald-400 font-bold">100%</td>
+                                <td class="p-4 text-center text-blue-400 font-bold">88%</td>
+                                <td class="p-4 text-center text-sky-400 font-bold">92%</td>
+                                <td class="p-4 text-center font-bold text-emerald-400">93.3%</td>
+                                <td class="p-4 text-center">
+                                    <button onclick="alert('📝 Grade details opened')" class="text-sky-400 hover:text-sky-300 text-sm font-bold">View</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-900/30">
+                                <td class="p-4 font-bold text-white">Rahul Verma</td>
+                                <td class="p-4 text-center text-emerald-400 font-bold">95%</td>
+                                <td class="p-4 text-center text-blue-400 font-bold">85%</td>
+                                <td class="p-4 text-center text-slate-400 font-bold">78%</td>
+                                <td class="p-4 text-center font-bold text-emerald-400">86.0%</td>
+                                <td class="p-4 text-center">
+                                    <button onclick="alert('📝 Grade details opened')" class="text-sky-400 hover:text-sky-300 text-sm font-bold">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TEST BUILDER TAB -->
+            <section id="tab-test-builder" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">Create Assessment Test</h2>
+                <form onsubmit="publishTest(event)" class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 space-y-4 max-w-2xl">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Test Title</label>
+                        <input type="text" required placeholder="e.g. Module 5 Final Assessment" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Description</label>
+                        <textarea placeholder="Test description..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500" rows="3"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Total Questions</label>
+                            <input type="number" value="10" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Time Limit (mins)</label>
+                            <input type="number" value="30" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg transition">
+                        <i class="fa-solid fa-paper-plane mr-2"></i> Publish Test to Batch
+                    </button>
+                </form>
+            </section>
+
+            <!-- CONTENT LIBRARY TAB -->
+            <section id="tab-content-library" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black text-white">Content Library</h2>
+                    <button onclick="alert('📤 Upload new content')" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm rounded-lg transition">
+                        <i class="fa-solid fa-upload mr-2"></i> Upload Content
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-lg p-4 hover:border-sky-500/40 transition">
+                        <div class="flex items-center justify-between mb-3">
+                            <i class="fa-solid fa-video text-2xl text-red-500"></i>
+                            <span class="text-xs bg-red-600/30 text-red-300 px-2 py-1 rounded">Video</span>
+                        </div>
+                        <p class="font-bold text-white text-sm">Module 5: Advanced OOP</p>
+                        <p class="text-xs text-slate-400 mt-1">45 min video • 285 MB</p>
+                        <p class="text-xs text-slate-500 mt-2">Uploaded 3 days ago</p>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-lg p-4 hover:border-sky-500/40 transition">
+                        <div class="flex items-center justify-between mb-3">
+                            <i class="fa-solid fa-file-pdf text-2xl text-orange-500"></i>
+                            <span class="text-xs bg-orange-600/30 text-orange-300 px-2 py-1 rounded">PDF</span>
+                        </div>
+                        <p class="font-bold text-white text-sm">Python Best Practices Guide</p>
+                        <p class="text-xs text-slate-400 mt-1">Slides • 8.5 MB</p>
+                        <p class="text-xs text-slate-500 mt-2">Uploaded 1 week ago</p>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-lg p-4 hover:border-sky-500/40 transition">
+                        <div class="flex items-center justify-between mb-3">
+                            <i class="fa-solid fa-file-code text-2xl text-emerald-500"></i>
+                            <span class="text-xs bg-emerald-600/30 text-emerald-300 px-2 py-1 rounded">Code</span>
+                        </div>
+                        <p class="font-bold text-white text-sm">Sample Projects & Examples</p>
+                        <p class="text-xs text-slate-400 mt-1">Repository • 12 files</p>
+                        <p class="text-xs text-slate-500 mt-2">Uploaded 2 weeks ago</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STUDENT ANALYTICS TAB -->
+            <section id="tab-student-analytics" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">Class Analytics Dashboard</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4">Learning Hours Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="hoursChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4">Module Completion Rate</h3>
+                        <div class="chart-container">
+                            <canvas id="completionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FEEDBACK TAB -->
+            <section id="tab-student-feedback" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">Student Feedback</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-lg p-4 text-center">
+                        <p class="text-xs text-slate-400 uppercase mb-1">Avg Rating</p>
+                        <p class="text-3xl font-black text-amber-400">4.8/5</p>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-lg p-4 text-center">
+                        <p class="text-xs text-slate-400 uppercase mb-1">Total Feedback</p>
+                        <p class="text-3xl font-black text-sky-400">38</p>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-lg p-4 text-center">
+                        <p class="text-xs text-slate-400 uppercase mb-1">Positive %</p>
+                        <p class="text-3xl font-black text-emerald-400">92%</p>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-lg p-4 text-center">
+                        <p class="text-xs text-slate-400 uppercase mb-1">Response Rate</p>
+                        <p class="text-3xl font-black text-purple-400">78%</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="bg-slate-800/60 border border-emerald-500/20 rounded-lg p-4">
+                        <div class="flex items-start gap-3">
+                            <div class="text-emerald-400 text-lg">★★★★★</div>
+                            <div class="flex-1">
+                                <p class="font-bold text-white text-sm">Priya Sharma</p>
+                                <p class="text-sm text-slate-300 mt-1">Excellent teaching methodology! Dr. Sharma explains complex concepts in a very simple way.</p>
+                                <p class="text-xs text-slate-500 mt-2">2 days ago</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-amber-500/20 rounded-lg p-4">
+                        <div class="flex items-start gap-3">
+                            <div class="text-amber-400 text-lg">★★★★☆</div>
+                            <div class="flex-1">
+                                <p class="font-bold text-white text-sm">Rahul Verma</p>
+                                <p class="text-sm text-slate-300 mt-1">Great content! Would appreciate more real-world projects.</p>
+                                <p class="text-xs text-slate-500 mt-2">4 days ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ATTENDANCE TAB -->
+            <section id="tab-attendance" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">Attendance Management</h2>
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg hover:bg-slate-900/70 transition cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40" class="w-8 h-8 rounded-full">
+                                <p class="font-bold text-white text-sm">Priya Sharma</p>
+                            </div>
+                            <span class="text-emerald-400 font-bold text-sm"><i class="fa-solid fa-check-circle mr-1"></i> Present</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg hover:bg-slate-900/70 transition cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40" class="w-8 h-8 rounded-full">
+                                <p class="font-bold text-white text-sm">Rahul Verma</p>
+                            </div>
+                            <span class="text-emerald-400 font-bold text-sm"><i class="fa-solid fa-check-circle mr-1"></i> Present</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg hover:bg-slate-900/70 transition cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">AK</div>
+                                <p class="font-bold text-white text-sm">Amit Kumar</p>
+                            </div>
+                            <span class="text-slate-400 font-bold text-sm"><i class="fa-solid fa-circle-minus mr-1"></i> Absent</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        function initCharts() {
+            const perfCtx = document.getElementById('performanceChart');
+            if (perfCtx) {
+                new Chart(perfCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                        datasets: [{
+                            label: 'Average Score',
+                            data: [72, 75, 80, 85, 87.3],
+                            borderColor: '#06b6d4',
+                            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8' } } },
+                        scales: {
+                            y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.3)' } },
+                            x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.3)' } }
+                        }
+                    }
+                });
+            }
+
+            const engCtx = document.getElementById('engagementChart');
+            if (engCtx) {
+                new Chart(engCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Videos', 'Tests', 'Forums', 'Assignments'],
+                        datasets: [{
+                            label: 'Engagement Count',
+                            data: [38, 35, 42, 28],
+                            backgroundColor: ['#06b6d4', '#0284c7', '#0369a1', '#075985']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8' } } },
+                        scales: {
+                            y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.3)' } },
+                            x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.3)' } }
+                        }
+                    }
+                });
+            }
+
+            const hrsCtx = document.getElementById('hoursChart');
+            if (hrsCtx) {
+                new Chart(hrsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Hours Spent',
+                            data: [3.5, 4.2, 3.8, 4.5, 4.0, 2.5, 3.0],
+                            backgroundColor: '#0284c7'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8' } } },
+                        scales: {
+                            y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.3)' } },
+                            x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.3)' } }
+                        }
+                    }
+                });
+            }
+
+            const compCtx = document.getElementById('completionChart');
+            if (compCtx) {
+                new Chart(compCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Completed', 'In Progress', 'Not Started'],
+                        datasets: [{
+                            data: [65, 30, 5],
+                            backgroundColor: ['#06b6d4', '#f59e0b', '#64748b']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8' }, position: 'bottom' } }
+                    }
+                });
+            }
+        }
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            if (element) element.classList.add('active');
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            setTimeout(initCharts, 100);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function toggleBroadcast() {
+            const btn = document.getElementById('btn-broadcast');
+            const feed = document.getElementById('feed-status');
+            if (btn.innerHTML.includes('Start')) {
+                btn.innerHTML = '<i class="fa-solid fa-stop text-xs mr-2"></i> Stop Broadcasting';
+                btn.className = 'px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm rounded-xl shadow transition';
+                feed.innerText = '🔴 LIVE • 1080p Stream • 42 Viewers';
+                feed.className = 'text-red-400 font-bold animate-pulse';
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-circle text-xs animate-pulse mr-2"></i> Start Broadcasting';
+                btn.className = 'px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold text-sm rounded-xl shadow transition';
+                feed.innerText = 'Camera Standby • Ready to Stream';
+                feed.className = 'text-slate-500 font-mono';
+            }
+        }
+
+        function launchPoll() {
+            alert('🗳️ Quick poll launched: "Did this module help you understand?"\n\nYes: 32\nNo: 2\nMaybe: 8');
+        }
+
+        function publishTest(e) {
+            e.preventDefault();
+            alert('✅ Test published to Batch PY-2026! Trainees can now take the assessment.');
+        }
+
+        window.addEventListener('load', initCharts);
+    </script>
+</body>
+</html>

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainee Console Pro - Capacity Connect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .nav-item.active { background-color: #2563eb; color: #ffffff; border-radius: 0.75rem; }
+        .skill-meter { background: linear-gradient(to right, #10b981, #3b82f6, #f59e0b); }
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+        }
+        .chart-container { position: relative; height: 300px; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- TOP BAR -->
+    <header class="bg-slate-950/90 backdrop-blur-xl text-white h-16 flex items-center justify-between px-4 md:px-6 sticky top-0 z-50 border-b border-slate-800/60 shadow-lg">
+        <div class="flex items-center space-x-3">
+            <button onclick="toggleSidebar()" class="md:hidden text-slate-300 hover:text-white p-1 transition">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                    <i class="fa-solid fa-graduation-cap text-white text-sm"></i>
+                </div>
+                <span class="font-black text-lg md:text-xl tracking-wider">CAPACITY <span class="text-blue-400">CONNECT</span></span>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 md:space-x-4">
+            <!-- Skill Level Badge -->
+            <div class="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 px-3 py-1.5 rounded-full">
+                <i class="fa-solid fa-star text-amber-400 text-sm"></i>
+                <span class="text-xs font-bold text-white">Level 5</span>
+                <span class="text-xs text-slate-400">1,450 XP</span>
+            </div>
+
+            <!-- Notifications -->
+            <button class="relative p-2 text-slate-400 hover:text-blue-400 transition" onclick="showNotifications()">
+                <i class="fa-solid fa-bell text-lg"></i>
+                <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse"></span>
+            </button>
+
+            <!-- Theme Toggle -->
+            <button onclick="toggleTheme()" class="p-2 text-slate-400 hover:text-white transition rounded-lg hover:bg-slate-800">
+                <i id="theme-icon" class="fa-solid fa-sun text-amber-400"></i>
+            </button>
+            
+            <!-- Profile Menu -->
+            <div class="flex items-center space-x-2 md:space-x-3 border-l border-slate-700 pl-3 md:pl-4">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" alt="Priya" class="w-8 h-8 rounded-full border-2 border-blue-500 object-cover">
+                <div class="hidden sm:block text-left">
+                    <p class="text-xs font-bold leading-tight">Priya Sharma</p>
+                    <p class="text-[10px] text-blue-400">Scholar - Python Track</p>
+                </div>
+                <button onclick="window.location.href='index.html'" class="text-slate-400 hover:text-red-400 text-sm ml-1 transition">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER -->
+    <div class="flex-1 flex min-h-[calc(100vh-4rem)] relative">
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-64 bg-slate-950/80 backdrop-blur-sm text-slate-300 flex-shrink-0 flex flex-col justify-between absolute md:relative z-40 h-full transition-all duration-300 -translate-x-full md:translate-x-0 border-r border-slate-800/60">
+            <nav class="p-4 space-y-2 text-sm font-medium">
+                <a href="#" onclick="switchTab('dashboard', this)" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-house w-5"></i> <span>Dashboard</span>
+                </a>
+                <a href="#" onclick="switchTab('skill-assessment', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-brain w-5"></i> <span>Skill Assessment</span>
+                </a>
+                <a href="#" onclick="switchTab('competency-map', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-map w-5"></i> <span>Competency Map</span>
+                </a>
+                <a href="#" onclick="switchTab('courses', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-book-open w-5"></i> <span>Courses</span>
+                </a>
+                <a href="#" onclick="switchTab('learning-path', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-route w-5"></i> <span>Learning Path</span>
+                </a>
+                <a href="#" onclick="switchTab('tests', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-clipboard-check w-5"></i> <span>Tests & Quizzes</span>
+                </a>
+                <a href="#" onclick="switchTab('leaderboard', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-trophy text-amber-400 w-5"></i> <span>Leaderboard</span>
+                </a>
+                <a href="#" onclick="switchTab('certificates', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-award w-5"></i> <span>Certificates</span>
+                </a>
+                <a href="#" onclick="switchTab('mentorship', this)" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl transition hover:bg-slate-800">
+                    <i class="fa-solid fa-handshake w-5"></i> <span>Mentorship</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                <p class="font-semibold text-slate-400">Session Active</p>
+                <p class="mt-1"><span class="text-emerald-400">●</span> Connected</p>
+            </div>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto w-full bg-slate-900/50">
+
+            <!-- DASHBOARD TAB -->
+            <section id="tab-dashboard" class="tab-content space-y-6">
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-6 shadow-xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-3xl font-black text-white">Welcome Back, Priya! 👋</h2>
+                            <p class="text-slate-300 mt-2">Continue your Python Data Analytics journey • 65% course completion</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-slate-400">Streak</p>
+                            <p class="text-2xl font-black text-amber-400 flex items-center gap-1 justify-end">
+                                <i class="fa-solid fa-fire"></i> 8 Days
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Metrics Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 hover:border-blue-500/40 transition">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Overall Progress</p>
+                        <p class="text-3xl font-black text-blue-400 mt-2">78%</p>
+                        <div class="w-full bg-slate-900 rounded-full h-1.5 mt-3">
+                            <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-1.5 rounded-full" style="width: 78%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 hover:border-emerald-500/40 transition">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Courses Completed</p>
+                        <p class="text-3xl font-black text-emerald-400 mt-2">4/8</p>
+                        <p class="text-xs text-slate-500 mt-3">2 in progress</p>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 hover:border-amber-500/40 transition">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Avg. Assessment Score</p>
+                        <p class="text-3xl font-black text-amber-400 mt-2">92.5%</p>
+                        <p class="text-xs text-slate-500 mt-3">↑ 5% from last month</p>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-xl p-5 hover:border-purple-500/40 transition">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Certificates Earned</p>
+                        <p class="text-3xl font-black text-purple-400 mt-2">3</p>
+                        <p class="text-xs text-slate-500 mt-3">Verified & shared</p>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Learning Analytics Chart -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-blue-400"></i> Weekly Learning Hours
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="learningChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Skill Distribution -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-doughnut text-purple-400"></i> Skill Breakdown
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="skillChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & Recommendations -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Recent Activity -->
+                    <div class="lg:col-span-2 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-clock text-blue-400"></i> Recent Activity
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3 p-3 bg-slate-900/50 rounded-xl border border-slate-700/30">
+                                <div class="w-2 h-2 rounded-full bg-emerald-400 mt-1.5 flex-shrink-0"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-semibold text-white">Completed Module 5: Advanced Pandas</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">Score: 96% • 2 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 p-3 bg-slate-900/50 rounded-xl border border-slate-700/30">
+                                <div class="w-2 h-2 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-semibold text-white">Earned Badge: 'Quick Learner'</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">Completed 5 modules in a week • 1 day ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 p-3 bg-slate-900/50 rounded-xl border border-slate-700/30">
+                                <div class="w-2 h-2 rounded-full bg-amber-400 mt-1.5 flex-shrink-0"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-semibold text-white">Certificate Issued: Python Fundamentals</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">Blockchain verified • 3 days ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Recommendations -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-purple-400"></i> AI Recommendations
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="p-3 bg-blue-600/10 border border-blue-500/30 rounded-lg">
+                                <p class="text-xs font-bold text-blue-300">Next: Data Visualization</p>
+                                <p class="text-xs text-slate-400 mt-1">Matches your skill level perfectly</p>
+                            </div>
+                            <div class="p-3 bg-emerald-600/10 border border-emerald-500/30 rounded-lg">
+                                <p class="text-xs font-bold text-emerald-300">Practice: SQL Queries</p>
+                                <p class="text-xs text-slate-400 mt-1">Strengthen weak areas identified</p>
+                            </div>
+                            <div class="p-3 bg-amber-600/10 border border-amber-500/30 rounded-lg">
+                                <p class="text-xs font-bold text-amber-300">New: ML Specialization</p>
+                                <p class="text-xs text-slate-400 mt-1">Advanced path unlocked!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SKILL ASSESSMENT TAB -->
+            <section id="tab-skill-assessment" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">Skill Assessment Module</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4">Technical Skills</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-sm text-slate-300 font-semibold mb-2">Python</p>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-slate-900 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full" style="width: 85%;"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-300">85%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-300 font-semibold mb-2">SQL</p>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-slate-900 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style="width: 72%;"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-300">72%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-300 font-semibold mb-2">Data Analytics</p>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-slate-900 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style="width: 78%;"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-300">78%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4">Soft Skills</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-sm text-slate-300 font-semibold mb-2">Communication</p>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-slate-900 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full" style="width: 82%;"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-300">82%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-300 font-semibold mb-2">Problem Solving</p>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-slate-900 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-teal-500 to-cyan-500 h-2 rounded-full" style="width: 88%;"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-300">88%</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-300 font-semibold mb-2">Leadership</p>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-slate-900 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" style="width: 65%;"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-300">65%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="alert('📊 Full assessment test will launch with 50 questions')" class="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition">
+                    <i class="fa-solid fa-test mr-2"></i> Take Full Skill Assessment
+                </button>
+            </section>
+
+            <!-- COMPETENCY MAP TAB -->
+            <section id="tab-competency-map" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">Competency Mapping & Gap Analysis</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4">Current vs Required Skills</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700/30">
+                                <div class="flex justify-between items-center mb-2">
+                                    <p class="font-semibold text-white text-sm">Data Engineering Role</p>
+                                    <span class="text-xs font-bold px-2 py-1 bg-blue-600/30 text-blue-300 rounded">87% Match</span>
+                                </div>
+                                <div class="space-y-2">
+                                    <div>
+                                        <p class="text-xs text-slate-400 mb-1">Python</p>
+                                        <div class="flex gap-2">
+                                            <div class="flex-1 bg-slate-700 rounded h-2"><div class="bg-green-500 h-2 rounded" style="width: 85%;"></div></div>
+                                            <div class="flex-1 bg-slate-700 rounded h-2"><div class="bg-emerald-600 h-2 rounded" style="width: 95%;"></div></div>
+                                        </div>
+                                        <p class="text-[10px] text-slate-500 mt-1">Current: 85% → Required: 95% (Gap: 10%)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                        <h3 class="font-bold text-white mb-4">Recommended Path</h3>
+                        <div class="space-y-2">
+                            <p class="text-xs text-slate-400">Suggested Learning Plan</p>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-check-circle text-emerald-400"></i> SQL Advanced (2 weeks)</li>
+                                <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-circle text-amber-400"></i> ETL Processes (3 weeks)</li>
+                                <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-circle text-slate-500"></i> Cloud Data (4 weeks)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COURSES TAB -->
+            <section id="tab-courses" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">My Courses</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-blue-500/40 transition group cursor-pointer">
+                        <div class="h-32 bg-gradient-to-br from-blue-600 to-indigo-700 relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-20 bg-white transition"></div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-white">Python Fundamentals</h3>
+                            <p class="text-xs text-slate-400 mt-1">Prof. Dr. Sharma</p>
+                            <div class="mt-3 w-full bg-slate-900 rounded-full h-2">
+                                <div class="bg-emerald-500 h-2 rounded-full" style="width: 100%;"></div>
+                            </div>
+                            <p class="text-xs text-emerald-400 font-bold mt-1">Completed ✓</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-blue-500/40 transition group cursor-pointer">
+                        <div class="h-32 bg-gradient-to-br from-cyan-600 to-blue-700 relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-20 bg-white transition"></div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-white">Data Analytics Basics</h3>
+                            <p class="text-xs text-slate-400 mt-1">In Progress</p>
+                            <div class="mt-3 w-full bg-slate-900 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 65%;"></div>
+                            </div>
+                            <p class="text-xs text-blue-400 font-bold mt-1">65% Progress</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-blue-500/40 transition group cursor-pointer">
+                        <div class="h-32 bg-gradient-to-br from-purple-600 to-pink-700 relative overflow-hidden">
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-20 bg-white transition"></div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-white">Machine Learning Intro</h3>
+                            <p class="text-xs text-slate-400 mt-1">Not Started</p>
+                            <div class="mt-3 w-full bg-slate-900 rounded-full h-2">
+                                <div class="bg-slate-600 h-2 rounded-full" style="width: 0%;"></div>
+                            </div>
+                            <p class="text-xs text-slate-400 font-bold mt-1">0% Progress</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LEADERBOARD TAB -->
+            <section id="tab-leaderboard" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">Global Leaderboard</h2>
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-900 border-b border-slate-700">
+                            <tr>
+                                <th class="p-4 text-left text-slate-400">Rank</th>
+                                <th class="p-4 text-left text-slate-400">Name</th>
+                                <th class="p-4 text-center text-slate-400">XP Points</th>
+                                <th class="p-4 text-center text-slate-400">Badges</th>
+                                <th class="p-4 text-center text-slate-400">Streak</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-700">
+                            <tr class="bg-amber-600/10">
+                                <td class="p-4"><span class="text-amber-400 font-black">🥇 1</span></td>
+                                <td class="p-4 font-bold text-white">Rajesh Kumar</td>
+                                <td class="p-4 text-center font-bold text-amber-300">2,850</td>
+                                <td class="p-4 text-center">15</td>
+                                <td class="p-4 text-center"><i class="fa-solid fa-fire text-amber-400"></i> 12</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4"><span class="text-slate-300 font-black">🥈 2</span></td>
+                                <td class="p-4 font-bold text-white">Amit Singh</td>
+                                <td class="p-4 text-center font-bold text-slate-300">2,720</td>
+                                <td class="p-4 text-center">14</td>
+                                <td class="p-4 text-center"><i class="fa-solid fa-fire text-amber-400"></i> 10</td>
+                            </tr>
+                            <tr class="bg-blue-600/10">
+                                <td class="p-4"><span class="text-blue-400 font-black">🥉 3</span></td>
+                                <td class="p-4 font-bold text-white">Priya Sharma <span class="text-blue-400 text-xs">(You)</span></td>
+                                <td class="p-4 text-center font-bold text-blue-300">2,640</td>
+                                <td class="p-4 text-center">13</td>
+                                <td class="p-4 text-center"><i class="fa-solid fa-fire text-amber-400"></i> 8</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- CERTIFICATES TAB -->
+            <section id="tab-certificates" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">Earned Certificates</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-amber-600 to-yellow-700 rounded-2xl p-8 border border-amber-500/30 shadow-xl">
+                        <div class="text-center">
+                            <i class="fa-solid fa-certificate text-6xl text-yellow-200 mb-4"></i>
+                            <h3 class="text-2xl font-black text-white">Python Fundamentals</h3>
+                            <p class="text-amber-100 text-sm mt-2">Blockchain Verified • Certificate ID: PY-2024-001</p>
+                            <button onclick="alert('📥 Certificate downloaded')" class="mt-4 px-4 py-2 bg-white/20 text-white rounded-lg text-sm font-bold hover:bg-white/30 transition">
+                                Download PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-blue-600 to-cyan-700 rounded-2xl p-8 border border-blue-500/30 shadow-xl">
+                        <div class="text-center">
+                            <i class="fa-solid fa-certificate text-6xl text-cyan-200 mb-4"></i>
+                            <h3 class="text-2xl font-black text-white">SQL Mastery</h3>
+                            <p class="text-blue-100 text-sm mt-2">Blockchain Verified • Certificate ID: SQL-2024-002</p>
+                            <button onclick="alert('📥 Certificate downloaded')" class="mt-4 px-4 py-2 bg-white/20 text-white rounded-lg text-sm font-bold hover:bg-white/30 transition">
+                                Download PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MENTORSHIP TAB -->
+            <section id="tab-mentorship" class="tab-content hidden space-y-6">
+                <h2 class="text-2xl font-black text-white">Mentorship Programs</h2>
+                <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6">
+                    <h3 class="font-bold text-white mb-4">Your Mentor</h3>
+                    <div class="flex items-center justify-between p-4 bg-slate-900/50 rounded-xl border border-slate-700/30">
+                        <div class="flex items-center gap-4">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Dr. Sharma" class="w-12 h-12 rounded-full border-2 border-sky-400 object-cover">
+                            <div>
+                                <p class="font-bold text-white">Dr. Sharma</p>
+                                <p class="text-xs text-slate-400">Senior Data Scientist • 10+ years experience</p>
+                            </div>
+                        </div>
+                        <button onclick="alert('📅 Booking mentorship session')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-lg transition">
+                            Schedule Session
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- FLOATING AI ASSISTANT -->
+    <div class="fixed bottom-5 right-5 z-50">
+        <button onclick="toggleAIBot()" class="w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-2xl flex items-center justify-center text-xl border border-blue-400/40 hover:scale-110 transition pulse-glow">
+            <i class="fa-solid fa-robot"></i>
+        </button>
+
+        <div id="ai-bot-window" class="hidden absolute bottom-20 right-0 w-96 bg-slate-950 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[450px]">
+            <div class="bg-gradient-to-r from-blue-900 to-indigo-900 p-4 text-white flex justify-between items-center border-b border-slate-800">
+                <span class="font-bold">Capacity AI Tutor</span>
+                <button onclick="toggleAIBot()" class="text-slate-300 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="ai-messages" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs">
+                <div class="bg-slate-900 p-3 rounded-lg text-slate-300">
+                    Hi Priya! 👋 How can I help you with your learning today?
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-800 flex gap-2">
+                <input type="text" id="ai-input" placeholder="Ask anything..." class="flex-1 bg-slate-900 border border-slate-700 text-xs rounded-lg p-2.5 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="askAI()" class="px-3 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-500 transition"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Charts
+        function initCharts() {
+            const learningCtx = document.getElementById('learningChart');
+            if (learningCtx) {
+                new Chart(learningCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Learning Hours',
+                            data: [3, 2.5, 4, 3.5, 5, 2, 4.5],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8' } } },
+                        scales: {
+                            y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.3)' } },
+                            x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.3)' } }
+                        }
+                    }
+                });
+            }
+
+            const skillCtx = document.getElementById('skillChart');
+            if (skillCtx) {
+                new Chart(skillCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Python', 'SQL', 'Data Analysis', 'Visualization'],
+                        datasets: [{
+                            data: [28, 22, 25, 25],
+                            backgroundColor: ['#3b82f6', '#06b6d4', '#f59e0b', '#8b5cf6']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#94a3b8' }, position: 'bottom' } }
+                    }
+                });
+            }
+        }
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            if (element) element.classList.add('active');
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            setTimeout(initCharts, 100);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function toggleAIBot() {
+            document.getElementById('ai-bot-window').classList.toggle('hidden');
+        }
+
+        function askAI() {
+            const input = document.getElementById('ai-input');
+            if (!input.value.trim()) return;
+            const msgs = document.getElementById('ai-messages');
+            const userMsg = document.createElement('div');
+            userMsg.className = 'bg-blue-600/30 p-3 rounded-lg text-slate-200 text-right';
+            userMsg.textContent = input.value;
+            msgs.appendChild(userMsg);
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'bg-slate-900 p-3 rounded-lg text-slate-300';
+                aiMsg.textContent = '✨ Great question! Check the learning materials section for more details.';
+                msgs.appendChild(aiMsg);
+                msgs.scrollTop = msgs.scrollHeight;
+            }, 600);
+            input.value = '';
+        }
+
+        function showNotifications() {
+            alert('📬 You have 3 new notifications:\n\n1. Module 6 released by Dr. Sharma\n2. Badge earned: Expert Problem Solver\n3. Certification exam available');
+        }
+
+        window.addEventListener('load', initCharts);
+    </script>
+</body>
+</html>
