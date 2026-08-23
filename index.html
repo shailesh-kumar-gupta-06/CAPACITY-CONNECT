@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capacity Connect Enterprise - Secure Login Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; }
+        .gradient-animate {
+            background: linear-gradient(-45deg, #1e3a8a, #0284c7, #1e3a8a, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .pulse-border { animation: pulse-border 2s infinite; }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgb(59, 130, 246, 0.3); }
+            50% { border-color: rgb(59, 130, 246, 0.8); }
+        }
+        .floating { animation: float 6s ease-in-out infinite; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4 font-sans relative overflow-hidden">
+
+    <!-- ANIMATED BACKGROUND -->
+    <div class="absolute inset-0 gradient-animate opacity-20 blur-3xl pointer-events-none"></div>
+    <div class="absolute -top-40 -left-40 w-80 h-80 bg-blue-600/30 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+    <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-indigo-600/30 rounded-full blur-3xl pointer-events-none animate-pulse" style="animation-delay: 1s;"></div>
+
+    <div class="w-full max-w-5xl relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+
+            <!-- LEFT SIDE - INFO PANEL -->
+            <div class="hidden lg:block space-y-8">
+                <div class="space-y-4">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-2xl floating">
+                        <i class="fa-solid fa-graduation-cap text-4xl"></i>
+                    </div>
+                    <h1 class="text-5xl font-black text-white leading-tight">
+                        CAPACITY<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">CONNECT</span>
+                    </h1>
+                    <p class="text-xl text-slate-300 font-light">Enterprise Competency & Learning Management System</p>
+                </div>
+
+                <!-- Features Grid -->
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-4 p-4 bg-slate-900/40 backdrop-blur-sm rounded-2xl border border-slate-800/60 hover:border-blue-500/30 transition">
+                        <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-brain text-blue-400 text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-white">AI Competency Mapping</p>
+                            <p class="text-xs text-slate-400 mt-1">Smart trainer-trainee matching algorithm</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-4 p-4 bg-slate-900/40 backdrop-blur-sm rounded-2xl border border-slate-800/60 hover:border-blue-500/30 transition">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-chart-line text-emerald-400 text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-white">Real-time Analytics</p>
+                            <p class="text-xs text-slate-400 mt-1">Track progress & identify skill gaps instantly</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-4 p-4 bg-slate-900/40 backdrop-blur-sm rounded-2xl border border-slate-800/60 hover:border-blue-500/30 transition">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-lock text-purple-400 text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-white">Enterprise Security</p>
+                            <p class="text-xs text-slate-400 mt-1">SSO & LDAP integration with audit trails</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-4 p-4 bg-slate-900/40 backdrop-blur-sm rounded-2xl border border-slate-800/60 hover:border-blue-500/30 transition">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-trophy text-amber-400 text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-white">Gamification Engine</p>
+                            <p class="text-xs text-slate-400 mt-1">Leaderboards, badges & streak tracking</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-3 pt-6 border-t border-slate-800">
+                    <div class="text-center">
+                        <p class="text-3xl font-black text-blue-400">1,280+</p>
+                        <p class="text-xs text-slate-400 mt-1">Active Users</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-black text-emerald-400">42</p>
+                        <p class="text-xs text-slate-400 mt-1">Courses</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-black text-purple-400">97%</p>
+                        <p class="text-xs text-slate-400 mt-1">Satisfaction</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE - LOGIN CARD -->
+            <div class="w-full">
+                <div class="bg-slate-900/80 backdrop-blur-2xl rounded-3xl shadow-2xl border border-slate-700/60 overflow-hidden">
+                    
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-8 relative border-b border-slate-700/50">
+                        <div class="absolute top-0 right-0 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl"></div>
+                        <div class="relative z-10">
+                            <p class="text-blue-300 text-xs font-bold uppercase tracking-widest mb-2">Secure Access Portal</p>
+                            <h2 class="text-3xl font-black text-white">Welcome Back</h2>
+                            <p class="text-slate-300 text-sm mt-2">Sign in to your Capacity Connect account</p>
+                        </div>
+                    </div>
+
+                    <!-- Demo Quick Access -->
+                    <div class="px-8 py-4 bg-slate-950/40 border-b border-slate-700/50">
+                        <p class="text-xs text-slate-400 font-semibold mb-3">🚀 Quick Access - Demo Accounts</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="fillDemo('trainee.html', 'priya@company.com')" class="px-3 py-2 bg-blue-600/20 text-blue-300 border border-blue-500/40 rounded-lg text-xs font-bold hover:bg-blue-600/30 transition">
+                                <i class="fa-solid fa-graduation-cap mr-1"></i> Trainee
+                            </button>
+                            <button onclick="fillDemo('trainer.html', 'drsharma@company.com')" class="px-3 py-2 bg-sky-600/20 text-sky-300 border border-sky-500/40 rounded-lg text-xs font-bold hover:bg-sky-600/30 transition">
+                                <i class="fa-solid fa-chalkboard-user mr-1"></i> Trainer
+                            </button>
+                            <button onclick="fillDemo('admin.html', 'admin@company.com')" class="px-3 py-2 bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-bold hover:bg-indigo-600/30 transition">
+                                <i class="fa-solid fa-user-gear mr-1"></i> Admin
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="login-form" onsubmit="handleLogin(event)" class="p-8 space-y-5">
+                        <!-- Email -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Corporate Email</label>
+                            <div class="relative group">
+                                <i class="fa-solid fa-envelope absolute left-4 top-3.5 text-slate-500 group-focus-within:text-blue-400 transition"></i>
+                                <input type="email" id="email" required value="priya@company.com" placeholder="name@company.com" 
+                                       class="w-full pl-11 pr-4 py-3 bg-slate-900/60 border border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition text-white placeholder-slate-500">
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Password</label>
+                            <div class="relative group">
+                                <i class="fa-solid fa-lock absolute left-4 top-3.5 text-slate-500 group-focus-within:text-blue-400 transition"></i>
+                                <input type="password" id="password" required value="••••••••" placeholder="Enter password" 
+                                       class="w-full pl-11 pr-4 py-3 bg-slate-900/60 border border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition text-white">
+                                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-3.5 text-slate-500 hover:text-slate-300">
+                                    <i id="eye-icon" class="fa-solid fa-eye text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Login As</label>
+                            <div class="relative group">
+                                <i class="fa-solid fa-user-shield absolute left-4 top-3.5 text-slate-500 group-focus-within:text-blue-400 transition pointer-events-none"></i>
+                                <select id="role" class="w-full pl-11 pr-10 py-3 bg-slate-900/60 border border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:outline-none transition text-slate-200 appearance-none cursor-pointer">
+                                    <option value="trainee.html">👨‍🎓 Trainee Console (Learner)</option>
+                                    <option value="trainer.html">👨‍🏫 Trainer Studio (Instructor)</option>
+                                    <option value="admin.html">👨‍💼 Admin Console (System)</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-4 top-3.5 text-slate-500 pointer-events-none text-xs"></i>
+                            </div>
+                        </div>
+
+                        <!-- Remember & Forgot -->
+                        <div class="flex items-center justify-between text-xs text-slate-400">
+                            <label class="flex items-center space-x-2 cursor-pointer hover:text-slate-300 transition">
+                                <input type="checkbox" checked class="rounded border-slate-700 bg-slate-900/60 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <span>Keep me logged in</span>
+                            </label>
+                            <a href="#" onclick="alert('Password reset link sent to your email')" class="text-blue-400 font-semibold hover:text-blue-300 transition">Forgot Password?</a>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/40 transition duration-200 flex items-center justify-center space-x-2 text-sm">
+                            <span>ENTER PLATFORM</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </form>
+
+                    <!-- Footer -->
+                    <div class="bg-slate-950/60 border-t border-slate-800 px-8 py-4 flex justify-between items-center text-xs text-slate-500">
+                        <div class="space-x-3">
+                            <span>Capacity Connect Pro v2.0</span>
+                            <span class="text-slate-700">•</span>
+                            <a href="#" class="text-slate-400 hover:text-slate-300">Privacy Policy</a>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="text-emerald-400 font-semibold">All Systems Operational</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Info -->
+                <div class="mt-6 lg:hidden space-y-4">
+                    <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+                        <p class="text-sm font-bold text-white mb-3">✨ Enterprise Features</p>
+                        <ul class="space-y-2 text-xs text-slate-400">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-blue-400"></i> AI Competency Mapping</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400"></i> Real-time Analytics</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-purple-400"></i> Enterprise Security</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function fillDemo(page, email) {
+            document.getElementById('email').value = email;
+            document.getElementById('role').value = page;
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const targetPage = document.getElementById('role').value;
+            
+            // Show loading state
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-2"></i> Authenticating...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                window.location.href = targetPage;
+            }, 1500);
+        }
+
+        function togglePasswordVisibility() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>
